@@ -22,6 +22,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network :forwarded_port, host: 57575, guest: 57575 # butterfly
   
   config.berkshelf.enabled = true
+  config.omnibus.chef_version = :latest
 
   # customization
   config.vm.provider :virtualbox do |vb|
@@ -40,20 +41,29 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     chef.add_recipe "git::source"
     chef.add_recipe "curl"
     chef.add_recipe "ntp"
+    chef.add_recipe "sudo"
     chef.add_recipe "rvm::default"
     chef.add_recipe "rvm::user"
 
     chef.json = {
+      :authorization => {
+        :sudo => {
+          :groups => ["vagrant"],
+          :users  => ["vagrant"],
+          :passwordless => true
+        }
+      },
+
       :rvm => {
         # version, branch, intaller_url because: https://github.com/fnichol/chef-rvm/issues/159
-        :version => "1.25.19",
+        :version => "1.25.26",
         :branch => "none",
         :installer_url => "https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer",
         :user_installs => [
           {
             'user'          => 'vagrant',
-            'default_ruby'  => 'ruby-1.9.3-p194',
-            'rubies'        => ['ruby-1.9.3-p194']
+            'default_ruby'  => 'ruby-2.1.2',
+            'rubies'        => ['ruby-2.1.2']
           }
         ]
       },
